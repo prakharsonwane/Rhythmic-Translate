@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Rhythmic Translate - Auth</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#020617;
+      overflow:hidden;
+      color:white;
+      position:relative;
+    }
+
+    /* PARTICLES */
+
+    #particles{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      z-index:0;
+    }
+
+    .particle{
+      position:absolute;
+      color:rgba(168,85,247,0.15);
+      font-size:12px;
+      animation:floatUp linear infinite;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    @keyframes floatUp{
+
+      from{
+        transform:translateY(110vh);
+        opacity:0;
+      }
+
+      15%{
+        opacity:1;
+      }
+
+      to{
+        transform:translateY(-120vh);
+        opacity:0;
+      }
+
+    }
+
+    /* PURPLE GLOW */
+
+    .glow{
+      position:absolute;
+      width:420px;
+      height:420px;
+      background:#8b5cf6;
+      filter:blur(140px);
+      opacity:0.15;
+      border-radius:50%;
+      z-index:0;
+    }
+
+    .glow.one{
+      top:-120px;
+      left:-100px;
+    }
+
+    .glow.two{
+      bottom:-120px;
+      right:-100px;
+    }
+
+    /* CARD */
+
+    .card{
+      position:relative;
+      z-index:2;
+      width:400px;
+      background:rgba(15,23,42,0.78);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:28px;
+      padding:35px;
+      overflow:hidden;
+
+      /* SOFT PURPLE SHADOW */
+
+      box-shadow:
+        0 0 45px rgba(139,92,246,0.22);
+
+      animation:slideUp 0.8s ease;
+    }
+
+    @keyframes slideUp{
+
+      from{
+        opacity:0;
+        transform:translateY(40px);
+      }
+
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+
+    }
+
+    .logo{
+      text-align:center;
+      font-size:42px;
+      margin-bottom:10px;
+    }
+
+    h1{
+      text-align:center;
+      font-size:32px;
+      color:#d8b4fe;
+      margin-bottom:10px;
+    }
+
+    .subtitle{
+      text-align:center;
+      color:#94a3b8;
+      margin-bottom:25px;
+      font-size:15px;
+    }
+
+    /* TABS */
+
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:25px;
+    }
+
+    .tab{
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:14px;
+      background:rgba(255,255,255,0.05);
+      color:white;
+      cursor:pointer;
+      transition:0.3s;
+      font-weight:bold;
+    }
+
+    .tab.active{
+      background:#8b5cf6;
+      box-shadow:0 0 18px rgba(139,92,246,0.35);
+    }
+
+    /* INPUTS */
+
+    .input-box{
+      margin-bottom:18px;
+    }
+
+    .input-box label{
+      display:block;
+      margin-bottom:8px;
+      color:#cbd5e1;
+      font-size:14px;
+    }
+
+    .input-box input{
+      width:100%;
+      padding:14px;
+      border:none;
+      outline:none;
+      border-radius:14px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      color:white;
+      font-size:15px;
+      transition:0.3s;
+    }
+
+    .input-box input:focus{
+      border-color:#8b5cf6;
+      box-shadow:0 0 20px rgba(139,92,246,0.3);
+      transform:scale(1.02);
+    }
+
+    .input-box input::placeholder{
+      color:#64748b;
+    }
+
+    /* BUTTON */
+
+    .submit-btn{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,#8b5cf6,#7c3aed);
+      color:white;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s;
+      margin-top:10px;
+    }
+
+    .submit-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 0 25px rgba(139,92,246,0.35);
+    }
+
+    .forgot{
+      text-align:right;
+      margin-top:12px;
+      font-size:14px;
+      color:#a78bfa;
+      cursor:pointer;
+    }
+
+    .bottom-text{
+      text-align:center;
+      margin-top:22px;
+      color:#94a3b8;
+      font-size:14px;
+    }
+
+    .hidden{
+      display:none;
+    }
+
+    @media(max-width:500px){
+
+      .card{
+        width:92%;
+        padding:28px;
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- PARTICLES -->
+
+  <div id="particles"></div>
+
+  <!-- GLOW -->
+
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+  <!-- CARD -->
+
+  <div class="card">
+
+    <div class="logo">🎵</div>
+
+    <h1>Rhythmic Translate</h1>
+
+    <p class="subtitle">
+      Secure Login & Signup
+    </p>
+
+    <!-- TABS -->
+
+    <div class="tabs">
+
+      <button class="tab active" id="loginTab">
+        Login
+      </button>
+
+      <button class="tab" id="signupTab">
+        Signup
+      </button>
+
+    </div>
+
+    <!-- LOGIN -->
+
+    <form id="loginForm">
+
+      <div class="input-box">
+
+        <label>Username</label>
+
+        <input
+          type="text"
+          id="loginUsername"
+          placeholder="Enter username"
+          required
+        >
+
+      </div>
+
+      <div class="input-box">
+
+        <label>Password</label>
+
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Enter password"
+          required
+        >
+
+      </div>
+
+      <div class="forgot" id="forgotBtn">
+        Forgot Password?
+      </div>
+
+      <button class="submit-btn" type="submit">
+        Login
+      </button>
+
+    </form>
+
+    <!-- SIGNUP -->
+
+    <form id="signupForm" class="hidden">
+
+      <div class="input-box">
+
+        <label>Username</label>
+
+        <input
+          type="text"
+          id="signupUsername"
+          placeholder="Create username"
+          required
+        >
+
+      </div>
+
+      <div class="input-box">
+
+        <label>Password</label>
+
+        <input
+          type="password"
+          id="signupPassword"
+          placeholder="Create password"
+          required
+        >
+
+      </div>
+
+      <div class="input-box">
+
+        <label>Favourite Colour</label>
+
+        <input
+          type="text"
+          id="favColour"
+          placeholder="Enter favourite colour"
+          required
+        >
+
+      </div>
+
+      <button class="submit-btn" type="submit">
+        Signup
+      </button>
+
+    </form>
+
+    <!-- FORGOT -->
+
+    <form id="forgotForm" class="hidden">
+
+      <div class="input-box">
+
+        <label>Favourite Colour</label>
+
+        <input
+          type="text"
+          id="forgotColour"
+          placeholder="Enter favourite colour"
+          required
+        >
+
+      </div>
+
+      <button class="submit-btn" type="submit">
+        Recover Password
+      </button>
+
+    </form>
+
+    <div class="bottom-text">
+      Made with 💜 by Rhythm
+    </div>
+
+  </div>
+
+  <script>
+
+    // PARTICLES
+
+    const particles =
+      document.getElementById("particles");
+
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    for(let i=0;i<100;i++){
+
+      const span =
+        document.createElement("span");
+
+      span.className = "particle";
+
+      span.innerText =
+        chars[Math.floor(Math.random()*chars.length)];
+
+      span.style.left =
+        Math.random()*100 + "vw";
+
+      span.style.top =
+        Math.random()*100 + "vh";
+
+      span.style.animationDuration =
+        (6 + Math.random()*10) + "s";
+
+      span.style.animationDelay =
+        Math.random()*5 + "s";
+
+      span.style.fontSize =
+        (10 + Math.random()*8) + "px";
+
+      particles.appendChild(span);
+
+    }
+
+    // ELEMENTS
+
+    const loginTab =
+      document.getElementById("loginTab");
+
+    const signupTab =
+      document.getElementById("signupTab");
+
+    const loginForm =
+      document.getElementById("loginForm");
+
+    const signupForm =
+      document.getElementById("signupForm");
+
+    const forgotForm =
+      document.getElementById("forgotForm");
+
+    const forgotBtn =
+      document.getElementById("forgotBtn");
+
+    // TAB SWITCH
+
+    loginTab.onclick = () => {
+
+      loginTab.classList.add("active");
+      signupTab.classList.remove("active");
+
+      loginForm.classList.remove("hidden");
+      signupForm.classList.add("hidden");
+      forgotForm.classList.add("hidden");
+
+    };
+
+    signupTab.onclick = () => {
+
+      signupTab.classList.add("active");
+      loginTab.classList.remove("active");
+
+      signupForm.classList.remove("hidden");
+      loginForm.classList.add("hidden");
+      forgotForm.classList.add("hidden");
+
+    };
+
+    // SIGNUP
+
+    signupForm.addEventListener("submit",(e)=>{
+
+      e.preventDefault();
+
+      localStorage.setItem(
+        "rt_username",
+        document.getElementById("signupUsername").value
+      );
+
+      localStorage.setItem(
+        "rt_password",
+        document.getElementById("signupPassword").value
+      );
+
+      localStorage.setItem(
+        "rt_colour",
+        document.getElementById("favColour").value
+      );
+
+      alert("Signup Successful!");
+
+      signupForm.reset();
+
+      loginTab.click();
+
+    });
+
+    // LOGIN
+
+    loginForm.addEventListener("submit",(e)=>{
+
+      e.preventDefault();
+
+      const user =
+        document.getElementById("loginUsername").value;
+
+      const pass =
+        document.getElementById("loginPassword").value;
+
+      if(
+        user === localStorage.getItem("rt_username")
+        &&
+        pass === localStorage.getItem("rt_password")
+      ){
+
+        window.location.href = "main.html";
+
+      }else{
+
+        alert("Wrong Username or Password");
+
+      }
+
+    });
+
+    // FORGOT PASSWORD
+
+    forgotBtn.onclick = () => {
+
+      loginForm.classList.add("hidden");
+
+      forgotForm.classList.remove("hidden");
+
+    };
+
+    forgotForm.addEventListener("submit",(e)=>{
+
+      e.preventDefault();
+
+      const colour =
+        document.getElementById("forgotColour").value;
+
+      if(
+        colour === localStorage.getItem("rt_colour")
+      ){
+
+        alert(
+          "Password: " +
+          localStorage.getItem("rt_password")
+        );
+
+        forgotForm.classList.add("hidden");
+
+        loginForm.classList.remove("hidden");
+
+      }else{
+
+        alert("Favourite Colour Incorrect");
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
