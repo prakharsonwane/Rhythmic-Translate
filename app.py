@@ -107,7 +107,9 @@ def api_translate():
             with connect_db() as c: c.execute('INSERT INTO translations(user_id,source_text,translated_text,source_lang,target_lang,created_at) VALUES(?,?,?,?,?,?)',(session['user_id'],text,out,src,dst,datetime.utcnow().isoformat(timespec='seconds')))
         return jsonify(translated_text=out,provider=provider,saved=bool(session.get('user_id')))
     except ValueError as e: return jsonify(error=str(e)),400
-    except requests.RequestException: return jsonify(error='Translation service is temporarily unavailable. Please retry in a moment.'),502
+    except requests.RequestException as e:
+    app.logger.exception("Translation provider failed: %s", e)
+    return jsonify(error='Translation service is temporarily unavailable. Please retry in a moment.'), 502
 
 def extract_ocr(data, name, mime):
     key=os.getenv('OCR_SPACE_API_KEY','')
