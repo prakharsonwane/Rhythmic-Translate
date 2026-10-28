@@ -109,7 +109,7 @@ def api_translate():
     except ValueError as e: return jsonify(error=str(e)),400
     except requests.RequestException as e:
     app.logger.exception("Translation provider failed: %s", e)
-    return jsonify(error='Translation service is temporarily unavailable. Please retry in a moment.'), 502
+        return jsonify(error='Translation service is temporarily unavailable. Please retry in a moment.'), 502
 
 def extract_ocr(data, name, mime):
     key=os.getenv('OCR_SPACE_API_KEY','')
