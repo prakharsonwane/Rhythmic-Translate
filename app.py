@@ -276,29 +276,93 @@ def translate_text(text, src, dst, mode):
             'AI translation'
         )
 
-    r = requests.get(
-        'https://api.mymemory.translated.net/get',
-        params={
-            'q': text,
-            'langpair': (
-                f"{'autodetect' if src == 'auto' else src}|{dst}"
-            )
-        },
-        timeout=25
-    )
-    r.raise_for_status()
-    data = r.json()
+    # STANDARD TRANSLATION
+    # First try the same unofficial Google endpoint
+    # used by the original static website.
 
-    result = (
-        data.get('responseData') or {}
-    ).get('translatedText', '').strip()
+    google_error = None
 
-    if not result or data.get('responseStatus') not in (200, '200'):
-        raise ValueError(
-            'Translation service returned no result. Try again.'
+    try:
+        r = requests.get(
+            'https://translate.googleapis.com/translate_a/single',
+            params={
+                'client': 'gtx',
+                'sl': src,
+                'tl': dst,
+                'dt': 't',
+                'q': text
+            },
+            headers={
+                'User-Agent': 'Mozilla/5.0'
+            },
+            timeout=25
         )
 
-    return result, 'Standard translation'
+        r.raise_for_status()
+        data = r.json()
+
+        if not isinstance(data, list) or not data:
+            raise ValueError('Invalid Google translation response.')
+
+        segments = data[0]
+
+        result = ''.join(
+            str(item[0])
+            for item in segments
+            if isinstance(item, list)
+            and len(item) > 0
+            and isinstance(item[0], str)
+        ).strip()
+
+        if result:
+            return result, 'Google Translate'
+
+        raise ValueError('Google returned an empty translation.')
+
+    except (requests.RequestException, ValueError, IndexError, TypeError) as e:
+        google_error = e
+        app.logger.warning(
+            'Google translation failed: %s',
+            type(e).__name__
+        )
+
+    # If Google fails, try MyMemory as a fallback.
+
+    try:
+        r = requests.get(
+            'https://api.mymemory.translated.net/get',
+            params={
+                'q': text,
+                'langpair': (
+                    f"{'autodetect' if src == 'auto' else src}|{dst}"
+                )
+            },
+            timeout=25
+        )
+
+        r.raise_for_status()
+        data = r.json()
+
+        result = (
+            data.get('responseData') or {}
+        ).get('translatedText', '').strip()
+
+        if result and data.get('responseStatus') in (200, '200'):
+            return result, 'MyMemory fallback'
+
+        raise requests.RequestException(
+            'MyMemory returned no usable translation.'
+        )
+
+    except (requests.RequestException, ValueError, TypeError) as e:
+        app.logger.warning(
+            'MyMemory fallback failed: %s',
+            type(e).__name__
+        )
+
+    raise requests.RequestException(
+        'All standard translation providers failed.'
+    ) from google_error
 
 
 @app.route('/api/translate', methods=['POST'])
@@ -370,14 +434,12 @@ def api_translate():
     except ValueError as e:
         return jsonify(error=str(e)), 400
 
-    except requests.RequestException as e:
-        app.logger.exception(
-            "Translation provider failed: %s", e
-        )
+    except requests.RequestException:
+        app.logger.exception('All standard translation providers failed')
         return jsonify(
             error=(
-                'Translation service is temporarily unavailable. '
-                'Please retry in a moment.'
+                'Translation services are temporarily unavailable. '
+                'Please try again later.'
             )
         ), 502
 
